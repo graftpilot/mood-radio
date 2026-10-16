@@ -17,6 +17,7 @@
 <link rel="preconnect" href="https://live.amperwave.net">
 <link rel="preconnect" href="https://stream-relay-geo.ntslive.net">
 <link rel="preconnect" href="https://live-radio01.mediahubaustralia.com">
+<link rel="preconnect" href="https://streaming.abc-cdn.net.au">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
@@ -163,14 +164,14 @@ var STATIONS = [
     streams: ["https://live.amperwave.net/direct/foxnewsradio-foxnewsradioaac-imc"] },
   { id: "triplej", mood: "aus", name: "Triple J", sub: "Australia's youth station, music and comedy",
     site: "https://www.abc.net.au/triplej",
-    streams: ["https://live-radio01.mediahubaustralia.com/2TJW/mp3/",
-              "https://live-radio01.mediahubaustralia.com/2TJW/aac/"] },
+    streams: ["https://streaming.abc-cdn.net.au/audio/hls/triplejnsw.m3u8",
+              "https://live-radio01.mediahubaustralia.com/2TJW/aac/",
+              "https://live-radio01.mediahubaustralia.com/2TJW/mp3/"] },
   { id: "nova", mood: "aus", name: "Nova 96.9", sub: "Sydney, Fitzy and Wippa",
     site: "https://www.novafm.com.au/",
     streams: ["https://playerservices.streamtheworld.com/api/livestream-redirect/NOVA_969_AAC320.aac"] },
-  { id: "kiis", mood: "aus", name: "KIIS 106.5", sub: "Sydney, Kyle and Jackie O",
-    site: "https://www.kiis1065.com.au/",
-    streams: ["https://playerservices.streamtheworld.com/api/livestream-redirect/KIIS1065AAC.aac"] },
+  { id: "kiis", mood: "aus", name: "KIIS 106.5", sub: "Sydney, Kyle and Jackie O, opens its site", link: true,
+    site: "https://www.kiis1065.com.au/", streams: [] },
   { id: "voices", mood: "good", name: "Voices Radio", sub: "London community radio",
     site: "https://voicesradio.co.uk",
     streams: ["https://voicesradio.out.airtime.pro/voicesradio_a"] },
