@@ -15,6 +15,7 @@
 <link rel="preconnect" href="https://voicesradio.out.airtime.pro">
 <link rel="preconnect" href="https://admin.stream.rinse.fm">
 <link rel="preconnect" href="https://live.amperwave.net">
+<link rel="preconnect" href="https://stream-relay-geo.ntslive.net">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
@@ -154,6 +155,12 @@ var STATIONS = [
   { id: "voices", mood: "good", name: "Voices Radio", sub: "London community radio",
     site: "https://voicesradio.co.uk",
     streams: ["https://voicesradio.out.airtime.pro/voicesradio_a"] },
+  { id: "nts1", mood: "good", name: "NTS 1", sub: "Live shows from London and beyond",
+    site: "https://www.nts.live/",
+    streams: ["https://stream-relay-geo.ntslive.net/stream?client=direct"] },
+  { id: "nts2", mood: "good", name: "NTS 2", sub: "All-day music mixes",
+    site: "https://www.nts.live/",
+    streams: ["https://stream-relay-geo.ntslive.net/stream2?client=direct"] },
   { id: "rinse", mood: "good", name: "Rinse FM", sub: "London, underground and grime",
     site: "https://rinse.fm/channels/uk/",
     streams: ["https://admin.stream.rinse.fm/proxy/rinse_uk/stream"] },
