@@ -101,6 +101,16 @@ a.station { text-decoration: none; }
   display: flex; align-items: center; justify-content: center;
 }
 .station.ext .badge svg { width: 30px; height: 30px; }
+.tile { position: relative; }
+.tile .station { padding-right: 92px; }
+.info {
+  position: absolute; right: 16px; top: 50%; transform: translateY(-50%); z-index: 1;
+  width: 56px; height: 56px; border-radius: 12px; border: 3px solid var(--ink); color: var(--ink);
+  display: flex; align-items: center; justify-content: center; text-decoration: none;
+}
+.tile.busy-t .info, .tile .info { background: transparent; }
+.info svg { width: 28px; height: 28px; }
+.info:focus-visible { outline: 4px solid var(--fg); outline-offset: 3px; }
 .bar {
   position: fixed; left: 0; right: 0; bottom: 0; background: var(--bar); color: var(--bar-fg);
   padding-top: 12px;
@@ -144,7 +154,7 @@ a.station { text-decoration: none; }
     <div id="aus-list" style="display:flex;flex-direction:column;gap:10px"></div>
   </section>
 
-  <p class="note">Set your pick before you set off, then leave it playing. On a phone, use Add to Home Screen to open this like an app. Dashed tiles with an arrow open the station's own website. Stations that block your country or are offline show a link to their site too.</p>
+  <p class="note">Set your pick before you set off, then leave it playing. On a phone, use Add to Home Screen to open this like an app. The small arrow button on a tile opens that station's website to see who is on. Dashed tiles open the website only. Stations that block your country or are offline show a link to their site too.</p>
 </main>
 
 <div class="bar" role="region" aria-label="Now playing">
@@ -276,21 +286,45 @@ audio.addEventListener("stalled", function () { if (current) setStatus(current.n
 stopBtn.addEventListener("click", stop);
 
 STATIONS.forEach(function (s) {
-  var b = document.createElement(s.link ? "a" : "button");
-  if (s.link) { b.href = s.site; b.target = "_blank"; b.rel = "noopener"; }
-  else { b.type = "button"; b.setAttribute("aria-pressed", "false"); }
-  b.className = "station" + (s.link ? " ext" : ""); b.id = "st-" + s.id;
-  var n = document.createElement("span"); n.className = "name"; n.textContent = s.name;
-  var u = document.createElement("span"); u.className = "sub"; u.textContent = s.sub;
-  b.appendChild(n); b.appendChild(u);
-  if (s.link) {
-    b.setAttribute("aria-label", s.name + ", opens their website");
-    var g = document.createElement("span"); g.className = "badge"; g.setAttribute("aria-hidden", "true");
-    g.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M8 7h9v9"/></svg>';
-    b.appendChild(g);
+  var list = document.getElementById(s.mood + "-list");
+  var ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M8 7h9v9"/></svg>';
+
+  function label(b) {
+    var n = document.createElement("span"); n.className = "name"; n.textContent = s.name;
+    var u = document.createElement("span"); u.className = "sub"; u.textContent = s.sub;
+    b.appendChild(n); b.appendChild(u);
   }
-  if (!s.link) { b.addEventListener("click", function () { play(s); }); buttons[s.id] = b; }
-  document.getElementById(s.mood + "-list").appendChild(b);
+
+  if (s.link) {
+    // opens the station's own site: dashed tile with an arrow badge
+    var a = document.createElement("a");
+    a.href = s.site; a.target = "_blank"; a.rel = "noopener";
+    a.className = "station ext"; a.id = "st-" + s.id;
+    a.setAttribute("aria-label", s.name + ", opens their website");
+    label(a);
+    var g = document.createElement("span"); g.className = "badge"; g.setAttribute("aria-hidden", "true");
+    g.innerHTML = ARROW;
+    a.appendChild(g);
+    list.appendChild(a);
+    return;
+  }
+
+  // plays in the app, plus a small outlined button to open the site and see who is on
+  var wrap = document.createElement("div"); wrap.className = "tile";
+  var b = document.createElement("button");
+  b.type = "button"; b.className = "station"; b.id = "st-" + s.id;
+  b.setAttribute("aria-pressed", "false");
+  label(b);
+  b.addEventListener("click", function () { play(s); });
+  buttons[s.id] = b;
+
+  var info = document.createElement("a");
+  info.className = "info"; info.href = s.site; info.target = "_blank"; info.rel = "noopener";
+  info.setAttribute("aria-label", "Open " + s.name + " website to see who is on");
+  info.innerHTML = ARROW;
+
+  wrap.appendChild(b); wrap.appendChild(info);
+  list.appendChild(wrap);
 });
 </script>
 
