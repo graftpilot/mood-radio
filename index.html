@@ -16,6 +16,7 @@
 <link rel="preconnect" href="https://admin.stream.rinse.fm">
 <link rel="preconnect" href="https://live.amperwave.net">
 <link rel="preconnect" href="https://stream-relay-geo.ntslive.net">
+<link rel="preconnect" href="https://live-radio01.mediahubaustralia.com">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
@@ -33,6 +34,8 @@
   --busy-ink: #fff7f1;
   --good: #1f6b5a;
   --good-ink: #f1fbf8;
+  --aus: #2a5aa6;
+  --aus-ink: #f2f6fd;
   --bar: #16181d;
   --bar-fg: #f3f1ee;
   --warn: #a4261d;
@@ -43,7 +46,7 @@
   :root:not([data-theme="light"]) {
     --bg: #101216; --fg: #f1efeb; --muted: #9a9ea8; --card: #1a1d23;
     --busy: #e8803c; --busy-ink: #1d0e04;
-    --good: #52c4a6; --good-ink: #04201a;
+    --good: #52c4a6; --good-ink: #04201a; --aus: #7fa9ef; --aus-ink: #0a1730;
     --bar: #f1efeb; --bar-fg: #101216; --warn: #ff8a80;
     color-scheme: dark;
   }
@@ -51,7 +54,7 @@
 :root[data-theme="dark"] {
   --bg: #101216; --fg: #f1efeb; --muted: #9a9ea8; --card: #1a1d23;
   --busy: #e8803c; --busy-ink: #1d0e04;
-  --good: #52c4a6; --good-ink: #04201a;
+  --good: #52c4a6; --good-ink: #04201a; --aus: #7fa9ef; --aus-ink: #0a1730;
   --bar: #f1efeb; --bar-fg: #101216; --warn: #ff8a80;
   color-scheme: dark;
 }
@@ -79,6 +82,7 @@ h1 { font-size: 1.05rem; font-weight: 800; letter-spacing: .02em; margin: 0; }
 }
 .busy .station { --tint: var(--busy); --ink: var(--busy-ink); }
 .good .station { --tint: var(--good); --ink: var(--good-ink); }
+.aus .station { --tint: var(--aus); --ink: var(--aus-ink); }
 .station .name { font-size: 2.1rem; font-weight: 800; line-height: 1; letter-spacing: -.01em; }
 .station .sub { font-family: var(--mono); font-size: .78rem; opacity: .85; }
 .station[aria-pressed="true"] { outline: 4px solid var(--fg); outline-offset: 3px; }
@@ -123,6 +127,11 @@ a.station { text-decoration: none; }
     <div id="good-list" style="display:flex;flex-direction:column;gap:10px"></div>
   </section>
 
+  <section class="mood aus" aria-labelledby="aus-h">
+    <h2 id="aus-h">Australia<span>Breakfast banter and Triple J</span></h2>
+    <div id="aus-list" style="display:flex;flex-direction:column;gap:10px"></div>
+  </section>
+
   <p class="note">Set your pick before you set off, then leave it playing. On a phone, use Add to Home Screen to open this like an app. Stations that block your country or are offline show a link to their own site instead.</p>
 </main>
 
@@ -152,6 +161,16 @@ var STATIONS = [
   { id: "fox", mood: "busy", name: "Fox News Radio", sub: "US news, hourly bulletins",
     site: "https://radio.foxnews.com/listen/",
     streams: ["https://live.amperwave.net/direct/foxnewsradio-foxnewsradioaac-imc"] },
+  { id: "triplej", mood: "aus", name: "Triple J", sub: "Australia's youth station, music and comedy",
+    site: "https://www.abc.net.au/triplej",
+    streams: ["https://live-radio01.mediahubaustralia.com/2TJW/mp3/",
+              "https://live-radio01.mediahubaustralia.com/2TJW/aac/"] },
+  { id: "nova", mood: "aus", name: "Nova 96.9", sub: "Sydney, Fitzy and Wippa",
+    site: "https://www.novafm.com.au/",
+    streams: ["https://playerservices.streamtheworld.com/api/livestream-redirect/NOVA_969_AAC320.aac"] },
+  { id: "kiis", mood: "aus", name: "KIIS 106.5", sub: "Sydney, Kyle and Jackie O",
+    site: "https://www.kiis1065.com.au/",
+    streams: ["https://playerservices.streamtheworld.com/api/livestream-redirect/KIIS1065AAC.aac"] },
   { id: "voices", mood: "good", name: "Voices Radio", sub: "London community radio",
     site: "https://voicesradio.co.uk",
     streams: ["https://voicesradio.out.airtime.pro/voicesradio_a"] },
