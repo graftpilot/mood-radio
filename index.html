@@ -90,6 +90,17 @@ h1 { font-size: 1.05rem; font-weight: 800; letter-spacing: .02em; margin: 0; }
 .station:focus-visible { outline: 4px solid var(--fg); outline-offset: 3px; }
 .station:active { transform: scale(.985); }
 a.station { text-decoration: none; }
+.station.ext {
+  position: relative; background: transparent; color: var(--fg);
+  border: 3px dashed var(--tint); padding-right: 92px;
+}
+.station.ext .sub { color: var(--muted); opacity: 1; }
+.station.ext .badge {
+  position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+  width: 56px; height: 56px; border-radius: 12px; background: var(--tint); color: var(--ink);
+  display: flex; align-items: center; justify-content: center;
+}
+.station.ext .badge svg { width: 30px; height: 30px; }
 .bar {
   position: fixed; left: 0; right: 0; bottom: 0; background: var(--bar); color: var(--bar-fg);
   padding-top: 12px;
@@ -133,7 +144,7 @@ a.station { text-decoration: none; }
     <div id="aus-list" style="display:flex;flex-direction:column;gap:10px"></div>
   </section>
 
-  <p class="note">Set your pick before you set off, then leave it playing. On a phone, use Add to Home Screen to open this like an app. Stations that block your country or are offline show a link to their own site instead.</p>
+  <p class="note">Set your pick before you set off, then leave it playing. On a phone, use Add to Home Screen to open this like an app. Dashed tiles with an arrow open the station's own website. Stations that block your country or are offline show a link to their site too.</p>
 </main>
 
 <div class="bar" role="region" aria-label="Now playing">
@@ -268,10 +279,16 @@ STATIONS.forEach(function (s) {
   var b = document.createElement(s.link ? "a" : "button");
   if (s.link) { b.href = s.site; b.target = "_blank"; b.rel = "noopener"; }
   else { b.type = "button"; b.setAttribute("aria-pressed", "false"); }
-  b.className = "station"; b.id = "st-" + s.id;
+  b.className = "station" + (s.link ? " ext" : ""); b.id = "st-" + s.id;
   var n = document.createElement("span"); n.className = "name"; n.textContent = s.name;
   var u = document.createElement("span"); u.className = "sub"; u.textContent = s.sub;
   b.appendChild(n); b.appendChild(u);
+  if (s.link) {
+    b.setAttribute("aria-label", s.name + ", opens their website");
+    var g = document.createElement("span"); g.className = "badge"; g.setAttribute("aria-hidden", "true");
+    g.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M8 7h9v9"/></svg>';
+    b.appendChild(g);
+  }
   if (!s.link) { b.addEventListener("click", function () { play(s); }); buttons[s.id] = b; }
   document.getElementById(s.mood + "-list").appendChild(b);
 });
