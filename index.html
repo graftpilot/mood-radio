@@ -8,6 +8,13 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Mood Radio">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://media-ice.musicradio.com">
+<link rel="preconnect" href="https://media-ssl.musicradio.com">
+<link rel="preconnect" href="https://playerservices.streamtheworld.com">
+<link rel="preconnect" href="https://noods-radio.radiocult.fm">
+<link rel="preconnect" href="https://voicesradio.out.airtime.pro">
+<link rel="preconnect" href="https://admin.stream.rinse.fm">
+<link rel="preconnect" href="https://live.amperwave.net">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
@@ -174,7 +181,9 @@ function markPressed() {
   for (var id in buttons) buttons[id].setAttribute("aria-pressed", current && current.id === id ? "true" : "false");
 }
 
+var connectTimer = null;
 function tryStream() {
+  clearTimeout(connectTimer);
   if (!current) return;
   if (streamIndex >= current.streams.length) {
     var s = current;
@@ -183,13 +192,19 @@ function tryStream() {
     return;
   }
   setStatus(current.name, "Connecting...", false);
+  audio.pause();
   audio.src = current.streams[streamIndex];
   var p = audio.play();
   if (p && p.catch) p.catch(function () { /* the error event handles fallback */ });
+  var mine = current;
+  connectTimer = setTimeout(function () {
+    if (current === mine && audio.readyState < 3) { streamIndex += 1; tryStream(); }
+  }, 6000);
 }
 
 function play(station) {
   if (current && current.id === station.id && !audio.paused) return;
+  audio.pause(); audio.removeAttribute("src"); audio.load();
   current = station; streamIndex = 0;
   markPressed();
   stopBtn.disabled = false;
@@ -204,13 +219,14 @@ function play(station) {
 }
 
 function stop() {
+  clearTimeout(connectTimer);
   audio.pause(); audio.removeAttribute("src"); audio.load();
   current = null; markPressed();
   stopBtn.disabled = true;
   setStatus("Stopped", "Pick a station", false);
 }
 
-audio.addEventListener("playing", function () { if (current) setStatus(current.name, "Live now", false); });
+audio.addEventListener("playing", function () { clearTimeout(connectTimer); if (current) setStatus(current.name, "Live now", false); });
 audio.addEventListener("waiting", function () { if (current) setStatus(current.name, "Buffering...", false); });
 audio.addEventListener("error", function () {
   if (!current || !audio.getAttribute("src")) return;
