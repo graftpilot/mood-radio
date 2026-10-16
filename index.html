@@ -76,6 +76,7 @@ h1 { font-size: 1.05rem; font-weight: 800; letter-spacing: .02em; margin: 0; }
 .station[aria-pressed="true"] { outline: 4px solid var(--fg); outline-offset: 3px; }
 .station:focus-visible { outline: 4px solid var(--fg); outline-offset: 3px; }
 .station:active { transform: scale(.985); }
+a.station { text-decoration: none; }
 .bar {
   position: fixed; left: 0; right: 0; bottom: 0; background: var(--bar); color: var(--bar-fg);
   padding-top: 12px;
@@ -143,6 +144,11 @@ var STATIONS = [
   { id: "voices", mood: "good", name: "Voices Radio", sub: "London community radio",
     site: "https://voicesradio.co.uk",
     streams: ["https://voicesradio.out.airtime.pro/voicesradio_a"] },
+  { id: "rinse", mood: "good", name: "Rinse FM", sub: "London, underground and grime",
+    site: "https://rinse.fm/channels/uk/",
+    streams: ["https://admin.stream.rinse.fm/proxy/rinse_uk/stream"] },
+  { id: "diff", mood: "good", name: "Diff Radio", sub: "Cardiff, opens its live page", link: true,
+    site: "https://www.mixcloud.com/live/DIFF_Radio/", streams: [] },
   { id: "noods", mood: "good", name: "Noods Radio", sub: "Bristol, no ads",
     site: "https://noodsradio.com",
     streams: ["https://noods-radio.radiocult.fm/stream"] }
@@ -211,14 +217,14 @@ audio.addEventListener("stalled", function () { if (current) setStatus(current.n
 stopBtn.addEventListener("click", stop);
 
 STATIONS.forEach(function (s) {
-  var b = document.createElement("button");
-  b.type = "button"; b.className = "station"; b.id = "st-" + s.id;
-  b.setAttribute("aria-pressed", "false");
+  var b = document.createElement(s.link ? "a" : "button");
+  if (s.link) { b.href = s.site; b.target = "_blank"; b.rel = "noopener"; }
+  else { b.type = "button"; b.setAttribute("aria-pressed", "false"); }
+  b.className = "station"; b.id = "st-" + s.id;
   var n = document.createElement("span"); n.className = "name"; n.textContent = s.name;
   var u = document.createElement("span"); u.className = "sub"; u.textContent = s.sub;
   b.appendChild(n); b.appendChild(u);
-  b.addEventListener("click", function () { play(s); });
-  buttons[s.id] = b;
+  if (!s.link) { b.addEventListener("click", function () { play(s); }); buttons[s.id] = b; }
   document.getElementById(s.mood + "-list").appendChild(b);
 });
 </script>
