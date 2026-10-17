@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101216">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mood Radio">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://media-ice.musicradio.com">
+<link rel="preconnect" href="https://media-ssl.musicradio.com">
+<link rel="preconnect" href="https://playerservices.streamtheworld.com">
+<link rel="preconnect" href="https://noods-radio.radiocult.fm">
+<link rel="preconnect" href="https://voicesradio.out.airtime.pro">
+<link rel="preconnect" href="https://admin.stream.rinse.fm">
+<link rel="preconnect" href="https://live.amperwave.net">
+<link rel="preconnect" href="https://stream-relay-geo.ntslive.net">
+<link rel="preconnect" href="https://live-radio01.mediahubaustralia.com">
+<link rel="preconnect" href="https://streaming.abc-cdn.net.au">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>:root{color-scheme:light dark;padding-top:env(safe-area-inset-top,0px)}html,body{margin:0}body{font-size:14px}</style>
+<title>Mood Radio</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: two big mood blocks stacked, each with two huge one-tap station buttons; fixed player bar at the bottom for stop and status. Built for glances. */
+:root {
+  --bg: #f3f1ee;
+  --fg: #16181d;
+  --muted: #5d6068;
+  --card: #e7e4df;
+  --busy: #b8470f;
+  --busy-ink: #fff7f1;
+  --good: #1f6b5a;
+  --good-ink: #f1fbf8;
+  --aus: #2a5aa6;
+  --aus-ink: #f2f6fd;
+  --focus: #6d4aa8;
+  --focus-ink: #f7f2fd;
+  --sleep: #3a4a86;
+  --sleep-ink: #f1f4fd;
+  --bar: #16181d;
+  --bar-fg: #f3f1ee;
+  --warn: #a4261d;
+  --display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101216; --fg: #f1efeb; --muted: #9a9ea8; --card: #1a1d23;
+    --busy: #e8803c; --busy-ink: #1d0e04;
+    --good: #52c4a6; --good-ink: #04201a; --aus: #7fa9ef; --aus-ink: #0a1730;
+    --focus: #b49af0; --focus-ink: #1a1030; --sleep: #8d9bd1; --sleep-ink: #0e1430;
+    --bar: #f1efeb; --bar-fg: #101216; --warn: #ff8a80;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101216; --fg: #f1efeb; --muted: #9a9ea8; --card: #1a1d23;
+  --busy: #e8803c; --busy-ink: #1d0e04;
+  --good: #52c4a6; --good-ink: #04201a; --aus: #7fa9ef; --aus-ink: #0a1730;
+  --focus: #b49af0; --focus-ink: #1a1030; --sleep: #8d9bd1; --sleep-ink: #0e1430;
+  --bar: #f1efeb; --bar-fg: #101216; --warn: #ff8a80;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--display); font-weight: 500;
+  padding-block: 20px 120px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+main { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+h1 { font-size: 1.05rem; font-weight: 800; letter-spacing: .02em; margin: 0; }
+.mood { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.mood h2 {
+  margin: 0; font-family: var(--mono); font-weight: 500; font-size: .8rem;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+}
+.mood h2 span { display: block; margin-top: 2px; letter-spacing: 0; text-transform: none; font-size: .78rem; }
+.station {
+  appearance: none; border: 0; width: 100%; min-height: 108px; border-radius: 14px;
+  display: flex; flex-direction: column; justify-content: center; gap: 4px;
+  padding: 18px 20px; text-align: left; cursor: pointer; font: inherit;
+  color: var(--ink); background: var(--tint);
+}
+.busy .station { --tint: var(--busy); --ink: var(--busy-ink); }
+.good .station { --tint: var(--good); --ink: var(--good-ink); }
+.aus .station { --tint: var(--aus); --ink: var(--aus-ink); }
+.focus .station { --tint: var(--focus); --ink: var(--focus-ink); }
+.sleep .station { --tint: var(--sleep); --ink: var(--sleep-ink); }
+.tile.solo .station { padding-right: 20px; }
+.station .name { font-size: 2.1rem; font-weight: 800; line-height: 1; letter-spacing: -.01em; }
+.station .sub { font-family: var(--mono); font-size: .78rem; opacity: .85; }
+.station[aria-pressed="true"] { outline: 4px solid var(--fg); outline-offset: 3px; }
+.station:focus-visible { outline: 4px solid var(--fg); outline-offset: 3px; }
+.station:active { transform: scale(.985); }
+a.station { text-decoration: none; }
+.station.ext {
+  position: relative; background: transparent; color: var(--fg);
+  border: 3px dashed var(--tint); padding-right: 92px;
+}
+.station.ext .sub { color: var(--muted); opacity: 1; }
+.station.ext .badge {
+  position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+  width: 56px; height: 56px; border-radius: 12px; background: var(--tint); color: var(--ink);
+  display: flex; align-items: center; justify-content: center;
+}
+.station.ext .badge svg { width: 30px; height: 30px; }
+.tile { position: relative; }
+.tile .station { padding-right: 92px; }
+.info {
+  position: absolute; right: 16px; top: 50%; transform: translateY(-50%); z-index: 1;
+  width: 56px; height: 56px; border-radius: 12px; border: 3px solid var(--ink); color: var(--ink);
+  display: flex; align-items: center; justify-content: center; text-decoration: none;
+}
+.tile.busy-t .info, .tile .info { background: transparent; }
+.info svg { width: 28px; height: 28px; }
+.info:focus-visible { outline: 4px solid var(--fg); outline-offset: 3px; }
+.bar {
+  position: fixed; left: 0; right: 0; bottom: 0; background: var(--bar); color: var(--bar-fg);
+  padding-top: 12px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.bar-in { max-width: 560px; margin: 0 auto; display: flex; align-items: center; gap: 14px; }
+.status { flex: 1; min-width: 0; }
+.status strong { display: block; font-size: 1.15rem; font-weight: 800; overflow-wrap: anywhere; }
+.status small { display: block; font-family: var(--mono); font-size: .75rem; opacity: .75; overflow-wrap: anywhere; }
+.status.err small { color: var(--warn); opacity: 1; }
+.stop {
+  appearance: none; border: 0; border-radius: 12px; min-width: 96px; min-height: 56px;
+  background: var(--bg); color: var(--fg); font: inherit; font-weight: 800; font-size: 1.1rem; cursor: pointer;
+}
+.stop:focus-visible { outline: 3px solid var(--busy); outline-offset: 2px; }
+.stop[disabled] { opacity: .4; cursor: default; }
+.note { font-family: var(--mono); font-size: .72rem; color: var(--muted); margin: 0; line-height: 1.5; }
+.note a { color: inherit; }
+@media (prefers-reduced-motion: reduce) { .station:active { transform: none; } }
+</style>
+
+</head>
+<body>
+<main>
+  <h1>Mood Radio</h1>
+
+  <section class="mood busy" aria-labelledby="busy-h">
+    <h2 id="busy-h">Busy morning<span>News and markets</span></h2>
+    <div id="busy-list" style="display:flex;flex-direction:column;gap:10px"></div>
+  </section>
+
+  <section class="mood good" aria-labelledby="good-h">
+    <h2 id="good-h">Feeling blessed<span>Music</span></h2>
+    <div id="good-list" style="display:flex;flex-direction:column;gap:10px"></div>
+  </section>
+
+  <section class="mood aus" aria-labelledby="aus-h">
+    <h2 id="aus-h">Australia<span>Breakfast banter and Triple J</span></h2>
+    <div id="aus-list" style="display:flex;flex-direction:column;gap:10px"></div>
+  </section>
+
+  <section class="mood focus" aria-labelledby="focus-h">
+    <h2 id="focus-h">Focus<span>Isochronic tones, made in the app. Keep the volume low.</span></h2>
+    <div id="focus-list" style="display:flex;flex-direction:column;gap:10px"></div>
+  </section>
+
+  <section class="mood sleep" aria-labelledby="sleep-h">
+    <h2 id="sleep-h">Sleep<span>Slow tone and steady noise. Not for driving.</span></h2>
+    <div id="sleep-list" style="display:flex;flex-direction:column;gap:10px"></div>
+  </section>
+
+  <p class="note">Set your pick before you set off, then leave it playing. On a phone, use Add to Home Screen to open this like an app. The small arrow button on a tile opens that station's website to see who is on. Dashed tiles open the website only. Stations that block your country or are offline show a link to their site too. Focus and sleep tones are made inside the app, so they work without a signal.</p>
+</main>
+
+<div class="bar" role="region" aria-label="Now playing">
+  <div class="bar-in">
+    <div class="status" id="status" aria-live="polite">
+      <strong id="st-main">Pick a station</strong>
+      <small id="st-sub">One tap to start</small>
+    </div>
+    <button class="stop" id="stop" type="button" disabled>Stop</button>
+  </div>
+</div>
+
+<audio id="player" preload="none"></audio>
+
+<script>
+// Edit this list to change stations. Each station tries its streams in order.
+var STATIONS = [
+  { id: "bloomberg", mood: "busy", name: "Bloomberg", sub: "Markets and business, live",
+    site: "https://www.bloomberg.com/radio",
+    streams: ["https://playerservices.streamtheworld.com/api/livestream-redirect/WBBRAAC.aac",
+              "https://playerservices.streamtheworld.com/api/livestream-redirect/WBBRAMAAC.aac"] },
+  { id: "lbc", mood: "busy", name: "LBC", sub: "Talk and news, UK",
+    site: "https://www.globalplayer.com/live/lbc/uk/",
+    streams: ["https://media-ice.musicradio.com/LBCUKMP3Low",
+              "https://media-ssl.musicradio.com/LBCUK"] },
+  { id: "fox", mood: "busy", name: "Fox News Radio", sub: "US news, hourly bulletins",
+    site: "https://radio.foxnews.com/listen/",
+    streams: ["https://live.amperwave.net/direct/foxnewsradio-foxnewsradioaac-imc"] },
+  { id: "triplej", mood: "aus", name: "Triple J", sub: "Australia's youth station, music and comedy",
+    site: "https://www.abc.net.au/triplej",
+    streams: ["https://streaming.abc-cdn.net.au/audio/hls/triplejnsw.m3u8",
+              "https://live-radio01.mediahubaustralia.com/2TJW/aac/",
+              "https://live-radio01.mediahubaustralia.com/2TJW/mp3/"] },
+  { id: "nova", mood: "aus", name: "Nova 96.9", sub: "Sydney, Fitzy and Wippa",
+    site: "https://www.novafm.com.au/",
+    streams: ["https://playerservices.streamtheworld.com/api/livestream-redirect/NOVA_969_AAC320.aac"] },
+  { id: "kiis", mood: "aus", name: "KIIS 106.5", sub: "Sydney, Kyle and Jackie O, opens its site", link: true,
+    site: "https://www.kiis1065.com.au/", streams: [] },
+  { id: "voices", mood: "good", name: "Voices Radio", sub: "London community radio",
+    site: "https://voicesradio.co.uk",
+    streams: ["https://voicesradio.out.airtime.pro/voicesradio_a"] },
+  { id: "nts1", mood: "good", name: "NTS 1", sub: "Live shows from London and beyond",
+    site: "https://www.nts.live/",
+    streams: ["https://stream-relay-geo.ntslive.net/stream?client=direct"] },
+  { id: "nts2", mood: "good", name: "NTS 2", sub: "All-day music mixes",
+    site: "https://www.nts.live/",
+    streams: ["https://stream-relay-geo.ntslive.net/stream2?client=direct"] },
+  { id: "rinse", mood: "good", name: "Rinse FM", sub: "London, underground and grime",
+    site: "https://rinse.fm/channels/uk/",
+    streams: ["https://admin.stream.rinse.fm/proxy/rinse_uk/stream"] },
+  { id: "worldwide", mood: "good", name: "Worldwide FM", sub: "Gilles Peterson's station, opens its player", link: true,
+    site: "https://www.worldwidefm.net", streams: [] },
+  { id: "diff", mood: "good", name: "Diff Radio", sub: "Cardiff, opens its live page", link: true,
+    site: "https://www.mixcloud.com/live/DIFF_Radio/", streams: [] },
+  { id: "noods", mood: "good", name: "Noods Radio", sub: "Bristol, no ads",
+    site: "https://noodsradio.com",
+    streams: ["https://noods-radio.radiocult.fm/stream"] },
+  { id: "t-focus", mood: "focus", name: "Focus", sub: "14 Hz beta pulse, for working", gen: { type: "iso", hz: 14, carrier: 300 } },
+  { id: "t-calm", mood: "focus", name: "Calm focus", sub: "10 Hz alpha pulse, relaxed and alert", gen: { type: "iso", hz: 10, carrier: 300 } },
+  { id: "t-creative", mood: "focus", name: "Creative", sub: "6 Hz theta pulse, for ideas", gen: { type: "iso", hz: 6, carrier: 250 } },
+  { id: "t-gamma", mood: "focus", name: "Sharp", sub: "40 Hz gamma pulse, short bursts", gen: { type: "iso", hz: 40, carrier: 400 } },
+  { id: "t-delta", mood: "sleep", name: "Deep sleep", sub: "2 Hz delta pulse, low and slow", gen: { type: "iso", hz: 2, carrier: 150 } },
+  { id: "n-brown", mood: "sleep", name: "Brown noise", sub: "Deep rumble, like distant thunder", gen: { type: "brown" } },
+  { id: "n-pink", mood: "sleep", name: "Pink noise", sub: "Softer, like steady rain", gen: { type: "pink" } },
+  { id: "n-white", mood: "sleep", name: "White noise", sub: "Bright hiss, masks other sounds", gen: { type: "white" } }
+];
+
+// Tones are built here in the browser as a short seamless loop, so no stream is needed.
+var RATE = 22050, toneCache = {};
+function wavUrl(f32) {
+  var n = f32.length, buf = new ArrayBuffer(44 + n * 2), v = new DataView(buf);
+  function str(o, t) { for (var i = 0; i < t.length; i++) v.setUint8(o + i, t.charCodeAt(i)); }
+  str(0, "RIFF"); v.setUint32(4, 36 + n * 2, true); str(8, "WAVE"); str(12, "fmt ");
+  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, RATE, true); v.setUint32(28, RATE * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+  str(36, "data"); v.setUint32(40, n * 2, true);
+  for (var i = 0; i < n; i++) v.setInt16(44 + i * 2, Math.max(-1, Math.min(1, f32[i])) * 32767, true);
+  return URL.createObjectURL(new Blob([buf], { type: "audio/wav" }));
+}
+function loopNoise(raw, n, fade) {
+  var out = new Float32Array(n), peak = 0, i;
+  for (i = 0; i < n; i++) {
+    if (i < fade) {
+      var a = (i / fade) * Math.PI / 2;
+      out[i] = raw[i] * Math.sin(a) + raw[n + i] * Math.cos(a);
+    } else out[i] = raw[i];
+  }
+  for (i = 0; i < n; i++) if (Math.abs(out[i]) > peak) peak = Math.abs(out[i]);
+  for (i = 0; i < n; i++) out[i] = out[i] / peak * 0.5;
+  return out;
+}
+function makeTone(g) {
+  var key = JSON.stringify(g);
+  if (toneCache[key]) return toneCache[key];
+  var i, out;
+  if (g.type === "iso") {
+    var n = RATE * 10; out = new Float32Array(n);
+    for (i = 0; i < n; i++) {
+      var t = i / RATE;
+      var gate = Math.max(0, Math.min(1, 0.5 + 0.5 * 3 * Math.sin(2 * Math.PI * g.hz * t - Math.PI / 2)));
+      out[i] = Math.sin(2 * Math.PI * g.carrier * t) * gate * 0.5;
+    }
+  } else {
+    var N = RATE * 20, F = RATE * 2, raw = new Float32Array(N + F);
+    var b = 0, b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+    for (i = 0; i < N + F; i++) {
+      var w = Math.random() * 2 - 1;
+      if (g.type === "white") raw[i] = w;
+      else if (g.type === "brown") { b = (b + 0.02 * w) / 1.02; raw[i] = b * 3.5; }
+      else {
+        b0 = 0.99886 * b0 + w * 0.0555179; b1 = 0.99332 * b1 + w * 0.0750759;
+        b2 = 0.96900 * b2 + w * 0.1538520; b3 = 0.86650 * b3 + w * 0.3104856;
+        b4 = 0.55000 * b4 + w * 0.5329522; b5 = -0.7616 * b5 - w * 0.0168980;
+        raw[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362) * 0.11; b6 = w * 0.115926;
+      }
+    }
+    out = loopNoise(raw, N, F);
+  }
+  return (toneCache[key] = wavUrl(out));
+}
+
+var audio = document.getElementById("player");
+var stopBtn = document.getElementById("stop");
+var stMain = document.getElementById("st-main");
+var stSub = document.getElementById("st-sub");
+var statusBox = document.getElementById("status");
+var current = null, streamIndex = 0, buttons = {};
+
+function setStatus(main, sub, isErr) {
+  stMain.textContent = main;
+  stSub.textContent = sub;
+  statusBox.className = "status" + (isErr ? " err" : "");
+}
+
+function markPressed() {
+  for (var id in buttons) buttons[id].setAttribute("aria-pressed", current && current.id === id ? "true" : "false");
+}
+
+var connectTimer = null;
+function tryStream() {
+  clearTimeout(connectTimer);
+  if (!current) return;
+  if (streamIndex >= current.streams.length) {
+    var s = current;
+    setStatus("Can't reach " + s.name, "Try again, or open " + s.site.replace(/^https?:\/\/(www\.)?/, ""), true);
+    stopBtn.disabled = false;
+    return;
+  }
+  setStatus(current.name, "Connecting...", false);
+  audio.pause();
+  audio.loop = false;
+  audio.src = current.streams[streamIndex];
+  var p = audio.play();
+  if (p && p.catch) p.catch(function () { /* the error event handles fallback */ });
+  var mine = current;
+  connectTimer = setTimeout(function () {
+    if (current === mine && audio.readyState < 3) { streamIndex += 1; tryStream(); }
+  }, 6000);
+}
+
+function play(station) {
+  if (current && current.id === station.id && !audio.paused) return;
+  audio.pause(); audio.removeAttribute("src"); audio.load();
+  current = station; streamIndex = 0;
+  markPressed();
+  stopBtn.disabled = false;
+  if (station.gen) {
+    clearTimeout(connectTimer);
+    audio.loop = true;
+    audio.src = makeTone(station.gen);
+    setStatus(station.name, "Starting...", false);
+    var tp = audio.play();
+    if (tp && tp.catch) tp.catch(function () { setStatus(station.name, "Tap again to start", true); });
+  } else {
+    tryStream();
+  }
+  try {
+    if ("mediaSession" in navigator) {
+      navigator.mediaSession.metadata = new MediaMetadata({ title: station.name, artist: station.gen ? "Focus and sleep" : "Mood Radio" });
+      navigator.mediaSession.setActionHandler("pause", stop);
+      navigator.mediaSession.setActionHandler("stop", stop);
+    }
+  } catch (e) {}
+}
+
+function stop() {
+  clearTimeout(connectTimer);
+  audio.pause(); audio.removeAttribute("src"); audio.load();
+  current = null; markPressed();
+  stopBtn.disabled = true;
+  setStatus("Stopped", "Pick a station", false);
+}
+
+audio.addEventListener("playing", function () { clearTimeout(connectTimer); if (current) setStatus(current.name, current.gen ? "Playing, loops until you stop" : "Live now", false); });
+audio.addEventListener("waiting", function () { if (current) setStatus(current.name, "Buffering...", false); });
+audio.addEventListener("error", function () {
+  if (!current || current.gen || !audio.getAttribute("src")) return;
+  streamIndex += 1; tryStream();
+});
+audio.addEventListener("stalled", function () { if (current) setStatus(current.name, "Signal is weak", false); });
+stopBtn.addEventListener("click", stop);
+
+STATIONS.forEach(function (s) {
+  var list = document.getElementById(s.mood + "-list");
+  var ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M8 7h9v9"/></svg>';
+
+  function label(b) {
+    var n = document.createElement("span"); n.className = "name"; n.textContent = s.name;
+    var u = document.createElement("span"); u.className = "sub"; u.textContent = s.sub;
+    b.appendChild(n); b.appendChild(u);
+  }
+
+  if (s.link) {
+    // opens the station's own site: dashed tile with an arrow badge
+    var a = document.createElement("a");
+    a.href = s.site; a.target = "_blank"; a.rel = "noopener";
+    a.className = "station ext"; a.id = "st-" + s.id;
+    a.setAttribute("aria-label", s.name + ", opens their website");
+    label(a);
+    var g = document.createElement("span"); g.className = "badge"; g.setAttribute("aria-hidden", "true");
+    g.innerHTML = ARROW;
+    a.appendChild(g);
+    list.appendChild(a);
+    return;
+  }
+
+  // plays in the app, plus a small outlined button to open the site and see who is on
+  var wrap = document.createElement("div"); wrap.className = "tile" + (s.gen ? " solo" : "");
+  var b = document.createElement("button");
+  b.type = "button"; b.className = "station"; b.id = "st-" + s.id;
+  b.setAttribute("aria-pressed", "false");
+  label(b);
+  b.addEventListener("click", function () { play(s); });
+  buttons[s.id] = b;
+
+  var info = document.createElement("a");
+  info.className = "info"; info.href = s.site; info.target = "_blank"; info.rel = "noopener";
+  info.setAttribute("aria-label", "Open " + s.name + " website to see who is on");
+  info.innerHTML = ARROW;
+
+  wrap.appendChild(b); if (!s.gen) wrap.appendChild(info);
+  list.appendChild(wrap);
+});
+</script>
+
+</body>
+</html>
