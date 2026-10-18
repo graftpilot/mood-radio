@@ -111,6 +111,8 @@ a.station { text-decoration: none; }
 }
 .station.ext .badge svg { width: 30px; height: 30px; }
 .tile { position: relative; }
+.yt iframe { width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 14px; background: #000; }
+.yt:empty { display: none; }
 .tile .station { padding-right: 92px; }
 .info {
   position: absolute; right: 16px; top: 50%; transform: translateY(-50%); z-index: 1;
@@ -169,7 +171,7 @@ a.station { text-decoration: none; }
   </section>
 
   <section class="mood sleep" aria-labelledby="sleep-h">
-    <h2 id="sleep-h">Sleep<span>Slow tone and steady noise. Not for driving.</span></h2>
+    <h2 id="sleep-h">Alpha waves<span>Live on YouTube. Needs signal, and the screen must stay on. Not for driving.</span></h2>
     <div id="sleep-list" style="display:flex;flex-direction:column;gap:10px"></div>
   </section>
 
@@ -235,10 +237,8 @@ var STATIONS = [
   { id: "t-calm", mood: "focus", name: "Calm focus", sub: "10 Hz alpha pulse, relaxed and alert", gen: { type: "iso", hz: 10, carrier: 300 } },
   { id: "t-creative", mood: "focus", name: "Creative", sub: "6 Hz theta pulse, for ideas", gen: { type: "iso", hz: 6, carrier: 250 } },
   { id: "t-gamma", mood: "focus", name: "Sharp", sub: "40 Hz gamma pulse, short bursts", gen: { type: "iso", hz: 40, carrier: 400 } },
-  { id: "t-delta", mood: "sleep", name: "Deep sleep", sub: "2 Hz delta pulse, low and slow", gen: { type: "iso", hz: 2, carrier: 150 } },
-  { id: "n-brown", mood: "sleep", name: "Brown noise", sub: "Deep rumble, like distant thunder", gen: { type: "brown" } },
-  { id: "n-pink", mood: "sleep", name: "Pink noise", sub: "Softer, like steady rain", gen: { type: "pink" } },
-  { id: "n-white", mood: "sleep", name: "White noise", sub: "Bright hiss, masks other sounds", gen: { type: "white" } }
+  { id: "yt-alpha", mood: "sleep", name: "Alpha waves", sub: "Live on YouTube, healing energy",
+    site: "https://www.youtube.com/live/Z3yQc_PX-Iw", yt: "Z3yQc_PX-Iw" }
 ];
 
 // Tones are built here in the browser as a short seamless loop, so no stream is needed.
@@ -334,12 +334,24 @@ function tryStream() {
   }, 6000);
 }
 
+function clearYT() {
+  STATIONS.forEach(function (x) { if (x.holder) x.holder.innerHTML = ""; });
+}
+
 function play(station) {
   if (current && current.id === station.id && !audio.paused) return;
   audio.pause(); audio.removeAttribute("src"); audio.load();
+  clearYT();
   current = station; streamIndex = 0;
   markPressed();
   stopBtn.disabled = false;
+  if (station.yt) {
+    clearTimeout(connectTimer);
+    station.holder.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + station.yt +
+      '?autoplay=1&playsinline=1" title="' + station.name + '" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>';
+    setStatus(station.name, "Playing from YouTube. Keep the screen on", false);
+    return;
+  }
   if (station.gen) {
     clearTimeout(connectTimer);
     audio.loop = true;
@@ -361,6 +373,7 @@ function play(station) {
 
 function stop() {
   clearTimeout(connectTimer);
+  clearYT();
   audio.pause(); audio.removeAttribute("src"); audio.load();
   current = null; markPressed();
   stopBtn.disabled = true;
@@ -416,6 +429,7 @@ STATIONS.forEach(function (s) {
 
   wrap.appendChild(b); if (!s.gen) wrap.appendChild(info);
   list.appendChild(wrap);
+  if (s.yt) { s.holder = document.createElement("div"); s.holder.className = "yt"; list.appendChild(s.holder); }
 });
 </script>
 
